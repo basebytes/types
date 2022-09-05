@@ -1,6 +1,7 @@
 package types
 
 import (
+	"database/sql/driver"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -40,7 +41,7 @@ type Time struct {
 
 func (t *Time) UnmarshalJSON(data []byte) (err error) {
 	t.Time, err = time.ParseInLocation(jsonTimeFormat, string(data), time.Local)
-	return err
+	return
 }
 
 func (t *Time) MarshalJSON() ([]byte, error) {
@@ -51,4 +52,17 @@ func (t *Time) MarshalJSON() ([]byte, error) {
 
 func (t *Time) String() string {
 	return t.Format(timeFormat)
+}
+
+func (t *Time) Scan(value interface{}) error {
+	t.Time = value.(time.Time)
+	return nil
+}
+
+func (t *Time) Value() (driver.Value, error) {
+	var zeroTime time.Time
+	if t.Time.UnixNano() == zeroTime.UnixNano() {
+		return nil, nil
+	}
+	return t.Time, nil
 }
