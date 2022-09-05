@@ -35,6 +35,10 @@ func (d *Duration) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.String())
 }
 
+func Now() Time {
+	return Time{time.Time{}}
+}
+
 type Time struct {
 	time.Time
 }
