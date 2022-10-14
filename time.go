@@ -65,7 +65,7 @@ func (t *Time) Scan(value interface{}) error {
 
 func (t *Time) Value() (driver.Value, error) {
 	var zeroTime time.Time
-	if t.Time.UnixNano() == zeroTime.UnixNano() {
+	if t==nil||t.Time.UnixNano() == zeroTime.UnixNano() {
 		return nil, nil
 	}
 	return t.Time, nil
