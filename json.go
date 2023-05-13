@@ -5,11 +5,10 @@ import (
 	"errors"
 )
 
-
 type Json []byte
 
 func (j *Json) Value() (driver.Value, error) {
-	if len(*j) == 0 || string(*j) == "null" {
+	if j == nil || len(*j) == 0 || string(*j) == "null" {
 		return nil, nil
 	}
 	return string(*j), nil
