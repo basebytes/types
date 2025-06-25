@@ -10,6 +10,8 @@ import (
 const (
 	timeFormat     = "2006-01-02 15:04:05"
 	jsonTimeFormat = `"2006-01-02 15:04:05"`
+	dateFormat     = "2006-01-02"
+	jsonDateFormat = `"2006-01-02"`
 )
 
 type Duration struct {
@@ -35,8 +37,25 @@ func (d *Duration) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.String())
 }
 
+func (d *Duration) Scan(value interface{}) error {
+	d.Duration = value.(time.Duration)
+	return nil
+}
+
+func (d *Duration) Value() (driver.Value, error) {
+	if d == nil || d.Duration == 0 {
+		return nil, nil
+	}
+	return d.Duration, nil
+}
+
 func Now() *Time {
 	return &Time{Time: time.Now()}
+}
+
+func Today() *Date {
+	t, _ := time.Parse(dateFormat, time.Now().Format(dateFormat))
+	return &Date{Time: t}
 }
 
 type Time struct {
@@ -65,8 +84,40 @@ func (t *Time) Scan(value interface{}) error {
 
 func (t *Time) Value() (driver.Value, error) {
 	var zeroTime time.Time
-	if t==nil||t.Time.UnixNano() == zeroTime.UnixNano() {
+	if t == nil || t.Time.UnixNano() == zeroTime.UnixNano() {
 		return nil, nil
 	}
 	return t.Time, nil
+}
+
+type Date struct {
+	time.Time
+}
+
+func (d *Date) UnmarshalJSON(data []byte) (err error) {
+	d.Time, err = time.ParseInLocation(jsonDateFormat, string(data), time.Local)
+	return
+}
+
+func (d *Date) MarshalJSON() ([]byte, error) {
+	b := make([]byte, 0, 21)
+	b = d.AppendFormat(b, jsonDateFormat)
+	return b, nil
+}
+
+func (d *Date) String() string {
+	return d.Format(dateFormat)
+}
+
+func (d *Date) Scan(value interface{}) error {
+	d.Time = value.(time.Time)
+	return nil
+}
+
+func (d *Date) Value() (driver.Value, error) {
+	var zeroTime time.Time
+	if d == nil || d.Time.UnixNano() == zeroTime.UnixNano() {
+		return nil, nil
+	}
+	return d.Time, nil
 }
