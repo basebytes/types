@@ -110,7 +110,12 @@ func (d *Date) String() string {
 }
 
 func (d *Date) Scan(value interface{}) error {
-	d.Time = value.(time.Time)
+	var zeroTime time.Time
+	if value == nil {
+		d.Time = zeroTime
+	} else {
+		d.Time = value.(time.Time)
+	}
 	return nil
 }
 
